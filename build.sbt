@@ -19,3 +19,5 @@ lazy val rootA = (project in file("rootA"))
 lazy val rootB = (project in file("rootB"))
   .aggregate(common, B)
   .settings(scalaVersion := scalaH)
+
+lazy val root = (project in file(".")).aggregate(rootA)
