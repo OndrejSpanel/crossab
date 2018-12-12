@@ -1,31 +1,21 @@
-val mainSettings = Seq(
-  name := "CrossAB",
-  version := "0.1"
-)
-
-
 val scalaL = "2.11.12"
 val scalaH = "2.12.7"
 
-def sourceDirectories(name: String) = Seq(
-  unmanagedSourceDirectories in Compile += (baseDirectory in ThisBuild).value / name / "src" / "main" / "scala",
-  unmanagedSourceDirectories in Test += (baseDirectory in ThisBuild).value / name / "src" / "test" / "scala",
-  unmanagedResourceDirectories in Compile += (baseDirectory in ThisBuild).value / name / "src" / "main" / "resources",
-  unmanagedResourceDirectories in Test += (baseDirectory in ThisBuild).value / name / "src" / "test" / "resources"
-)
+lazy val common = (project in file("common"))
+  .settings(crossScalaVersions := Seq(scalaH, scalaL))
 
-lazy val commonSources = sourceDirectories("common")
+lazy val A = (project in file("A"))
+  .settings(scalaVersion := scalaL)
+  .dependsOn(common)
 
-lazy val aSources = sourceDirectories("A")
+lazy val B = (project in file("B"))
+  .settings(scalaVersion := scalaH)
+  .dependsOn(common)
 
-lazy val bSources = sourceDirectories("B")
+lazy val rootA = (project in file("rootA"))
+  .aggregate(common, A)
+  .settings(scalaVersion := scalaL)
 
-lazy val rootA = project.in(file("rootA")).settings(commonSources ++ aSources ++ mainSettings ++ Seq(
-  scalaVersion := scalaL
-))
-
-lazy val rootB = project.in(file("rootB")).settings(commonSources ++ bSources ++ mainSettings ++ Seq(
-  scalaVersion := scalaH
-))
-
-lazy val root = rootA
+lazy val rootB = (project in file("rootB"))
+  .aggregate(common, B)
+  .settings(scalaVersion := scalaH)
